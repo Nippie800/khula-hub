@@ -1,5 +1,5 @@
-export function makeRef(prefix: "KHULA" | "SPONSOR") {
+export function makeKhulaRef() {
   const year = new Date().getFullYear();
-  const rand = Math.floor(1000 + Math.random() * 9000); // 4 digits
-  return `${prefix}-${year}-${rand}`;
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `KHULA-${year}-${rand}`;
 }
