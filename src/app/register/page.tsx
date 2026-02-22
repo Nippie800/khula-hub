@@ -8,6 +8,7 @@ import CheckboxField from "../../components/CheckboxField";
 import PrimaryButton from "../../components/PrimaryButton";
 import { makeKhulaRef } from "../../lib/ref";
 import { createRegistration } from "../../lib/registrations";
+import { isValidEmail, isValidPhone, normalizePhone } from "../../lib/validate";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -55,6 +56,9 @@ export default function RegisterPage() {
     if (!consentIndemnity) return false;
     if (!consentTerms) return false;
 
+    if (!isValidEmail(parentEmail)) return false;
+if (!isValidPhone(parentPhone)) return false;
+if (!isValidPhone(emergencyContactPhone)) return false;
     return true;
   }, [
     parentFullName,
@@ -72,19 +76,34 @@ export default function RegisterPage() {
   async function onSubmit() {
     setError("");
     if (!canSubmit) {
-      setError("Please complete all required fields and accept the indemnity + terms.");
-      return;
+      if (!parentFullName.trim()) return setError("Please enter the parent/guardian full name.");
+if (!parentPhone.trim()) return setError("Please enter a parent/guardian phone number.");
+if (!isValidPhone(parentPhone)) return setError("Please enter a valid phone number (e.g. 07x... or +27...).");
+if (!parentEmail.trim()) return setError("Please enter the parent/guardian email.");
+if (!isValidEmail(parentEmail)) return setError("Please enter a valid email address.");
+
+if (!learnerFullName.trim()) return setError("Please enter the learner full name.");
+if (!learnerGrade.trim()) return setError("Please enter the learner grade (8–11).");
+
+if (!emergencyContactName.trim()) return setError("Please enter an emergency contact name.");
+if (!emergencyContactPhone.trim()) return setError("Please enter an emergency contact phone number.");
+if (!isValidPhone(emergencyContactPhone)) return setError("Please enter a valid emergency phone number.");
+
+if (!consentIndemnity) return setError("Please accept the indemnity.");
+if (!consentTerms) return setError("Please accept the terms & conditions.");
     }
 
     setLoading(true);
     try {
       const ref = makeKhulaRef();
 
+      const allergiesFinal = allergies.trim() ? allergies.trim() : "None";
+
       await createRegistration({
         ref,
 
         parentFullName: parentFullName.trim(),
-        parentPhone: parentPhone.trim(),
+        parentPhone: normalizePhone(parentPhone),
         parentEmail: parentEmail.trim(),
         parentRelationship: parentRelationship.trim(),
 
@@ -93,7 +112,7 @@ export default function RegisterPage() {
         learnerGrade: learnerGrade.trim(),
         learnerSchool: learnerSchool.trim(),
 
-        allergies: allergies.trim(),
+        allergies: allergiesFinal,
         medicalNotes: medicalNotes.trim(),
 
         emergencyContactName: emergencyContactName.trim(),
@@ -153,7 +172,14 @@ export default function RegisterPage() {
             <section className="grid gap-4">
               <h2 className="text-lg font-semibold">Health</h2>
               <div className="grid gap-4 sm:grid-cols-2">
-                <TextField label="Allergies" name="allergies" value={allergies} onChange={setAllergies} placeholder='Type "None" if none' required />
+                <TextField
+  label="Allergies"
+  name="allergies"
+  value={allergies}
+  onChange={setAllergies}
+  placeholder='Leave blank to auto-fill "None"'
+  required
+/>
                 <TextField label="Medical notes (optional)" name="medicalNotes" value={medicalNotes} onChange={setMedicalNotes} placeholder="Asthma, medication, etc." />
               </div>
             </section>
@@ -168,24 +194,25 @@ export default function RegisterPage() {
 
             <section className="grid gap-3">
               <h2 className="text-lg font-semibold">Consent</h2>
-              <CheckboxField
-                checked={consentIndemnity}
-                onChange={setConsentIndemnity}
-                label={
-                  <>
-                    I accept the <b>indemnity</b> and understand participation is at my/our own risk.
-                  </>
-                }
-              />
-              <CheckboxField
-                checked={consentTerms}
-                onChange={setConsentTerms}
-                label={
-                  <>
-                    I accept the <b>terms & conditions</b> for Khula NPC camp.
-                  </>
-                }
-              />
+             <CheckboxField
+  checked={consentIndemnity}
+  onChange={setConsentIndemnity}
+  label={
+    <>
+      I accept the <a className="underline" href="/indemnity">indemnity</a> and understand participation is at my/our own risk.
+    </>
+  }
+/>
+
+<CheckboxField
+  checked={consentTerms}
+  onChange={setConsentTerms}
+  label={
+    <>
+      I accept the <a className="underline" href="/terms">terms &amp; conditions</a> for Khula NPC camp.
+    </>
+  }
+/>
               <CheckboxField
                 checked={consentMedia}
                 onChange={setConsentMedia}
