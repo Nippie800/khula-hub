@@ -53,6 +53,7 @@ export default function SuccessPage() {
 
               <p className="mt-2 text-sm text-white/90">
                 Next step: make an EFT payment using the reference below (exactly as shown) so we can confirm the spot.
+                <span className="block mt-2 text-white/85 font-semibold">See you around the fire. 🔥</span>
               </p>
             </div>
           </div>

@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Container from "../../components/Container";
 import TextField from "../../components/TextField";
 import CheckboxField from "../../components/CheckboxField";
 import PrimaryButton from "../../components/PrimaryButton";
+import { Toast } from "../../components/Toast";
 import { makeKhulaRef } from "../../lib/ref";
 import { createRegistration } from "../../lib/registrations";
 import { isValidEmail, isValidPhone, normalizePhone } from "../../lib/validate";
@@ -14,13 +15,20 @@ function Section({
   title,
   subtitle,
   children,
+  done,
 }: {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  done?: boolean;
 }) {
   return (
-    <section className="grid gap-3 rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+    <section
+      className={[
+        "grid gap-3 rounded-3xl border bg-white p-5 shadow-sm transition-all",
+        done ? "border-emerald-200/70 shadow-md" : "border-gray-200",
+      ].join(" ")}
+    >
       <div>
         <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
         {subtitle ? <p className="mt-1 text-sm text-gray-700">{subtitle}</p> : null}
@@ -62,6 +70,15 @@ export default function RegisterPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // 🔥 micro-feedback toast
+  const [toast, setToast] = useState<{ show: boolean; msg: string }>({
+    show: false,
+    msg: "",
+  });
+  function spark(msg: string) {
+    setToast({ show: true, msg });
+  }
 
   // Parent
   const [parentFullName, setParentFullName] = useState("");
@@ -113,15 +130,32 @@ export default function RegisterPage() {
   }, []);
 
   const stepEmergencyDone = useMemo(() => {
-    return (
-      !!emergencyContactName.trim() &&
-      isValidPhone(emergencyContactPhone)
-    );
+    return !!emergencyContactName.trim() && isValidPhone(emergencyContactPhone);
   }, [emergencyContactName, emergencyContactPhone]);
 
   const stepConsentDone = useMemo(() => {
     return !!consentIndemnity && !!consentTerms;
   }, [consentIndemnity, consentTerms]);
+
+  // 🔥 Campfire Sparks (fire once when a section becomes complete)
+  const prevParent = useRef(false);
+  const prevLearner = useRef(false);
+  const prevEmergency = useRef(false);
+  const prevConsent = useRef(false);
+
+  useEffect(() => {
+    if (stepParentDone && !prevParent.current) spark("🔥 Nice. Parent details locked in.");
+    prevParent.current = stepParentDone;
+
+    if (stepLearnerDone && !prevLearner.current) spark("🎒 Backpack packed. Learner details ready.");
+    prevLearner.current = stepLearnerDone;
+
+    if (stepEmergencyDone && !prevEmergency.current) spark("🧱 Brick placed. Emergency contact secured.");
+    prevEmergency.current = stepEmergencyDone;
+
+    if (stepConsentDone && !prevConsent.current) spark("🌲 Commitment complete. You’re good to go.");
+    prevConsent.current = stepConsentDone;
+  }, [stepParentDone, stepLearnerDone, stepEmergencyDone, stepConsentDone]);
 
   const totalSteps = 5;
   const stepsDone = [stepParentDone, stepLearnerDone, stepHealthDone, stepEmergencyDone, stepConsentDone].filter(Boolean)
@@ -192,7 +226,6 @@ export default function RegisterPage() {
 
       await createRegistration({
         ref,
-
         parentFullName: parentFullName.trim(),
         parentPhone: normalizePhone(parentPhone),
         parentEmail: parentEmail.trim(),
@@ -227,6 +260,13 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {/* 🔥 Toast */}
+      <Toast
+        show={toast.show}
+        message={toast.msg}
+        onClose={() => setToast((t) => ({ ...t, show: false }))}
+      />
+
       {/* Themed header + journey tracker */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-teal-600 to-lime-300" />
@@ -288,8 +328,9 @@ export default function RegisterPage() {
         <div className="grid gap-6 py-8">
           <div className="grid gap-6">
             <Section
-              title="Parent / Guardian"
+              title="🔥 Parent / Guardian"
               subtitle="We’ll use these details to contact you about the learner’s registration."
+              done={stepParentDone}
             >
               <div className="grid gap-4 sm:grid-cols-2">
                 <TextField label="Full name & surname" name="parentFullName" value={parentFullName} onChange={setParentFullName} required />
@@ -314,7 +355,11 @@ export default function RegisterPage() {
               </div>
             </Section>
 
-            <Section title="Learner" subtitle="Please ensure the learner’s name matches their school records.">
+            <Section
+              title="🎒 Learner"
+              subtitle="Please ensure the learner’s name matches their school records."
+              done={stepLearnerDone}
+            >
               <div className="grid gap-4 sm:grid-cols-2">
                 <TextField label="Full name & surname" name="learnerFullName" value={learnerFullName} onChange={setLearnerFullName} required />
 
@@ -346,7 +391,7 @@ export default function RegisterPage() {
               </div>
             </Section>
 
-            <Section title="Health" subtitle="This helps our team keep learners safe during activities.">
+            <Section title="🧱 Health" subtitle="This helps our team keep learners safe during activities." done={stepHealthDone}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-1">
                   <TextField
@@ -369,7 +414,7 @@ export default function RegisterPage() {
               </div>
             </Section>
 
-            <Section title="Emergency contact" subtitle="Someone we can reach quickly if needed.">
+            <Section title="📞 Emergency contact" subtitle="Someone we can reach quickly if needed." done={stepEmergencyDone}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <TextField label="Name" name="emergencyContactName" value={emergencyContactName} onChange={setEmergencyContactName} required />
                 <TextField
@@ -383,7 +428,7 @@ export default function RegisterPage() {
               </div>
             </Section>
 
-            <Section title="Consent" subtitle="Required to complete registration.">
+            <Section title="🌲 Consent" subtitle="Required to complete registration." done={stepConsentDone}>
               <div className="grid gap-3">
                 <CheckboxField
                   checked={consentIndemnity}
@@ -437,9 +482,7 @@ export default function RegisterPage() {
                   Tip: complete required fields and accept indemnity + terms to submit.
                 </p>
               ) : (
-                <p className="mt-3 text-xs text-gray-600">
-                  🔥 Nice — your spot is almost ready.
-                </p>
+                <p className="mt-3 text-xs text-gray-600">🔥 Nice — your spot is almost ready.</p>
               )}
             </div>
           </div>
