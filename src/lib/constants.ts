@@ -3,7 +3,7 @@ export const CAMP = {
   est: 2026,
   slogan: "Building character one truth at a time",
   themeLine: "Brick by brick • Step by step",
-  capacity: 40, // ✅ change this anytime
+  capacity: 120, // ✅ change this anytime
 };
 
 export const EFT = {

@@ -129,7 +129,9 @@ export default function SponsorPage() {
         status: "PLEDGED",
       });
 
-      router.push(`/sponsor/success?ref=${encodeURIComponent(ref)}`);
+      router.push(
+  `/sponsor/success?ref=${encodeURIComponent(ref)}&amount=${encodeURIComponent(amount.trim())}`
+);
     } catch (e: any) {
       console.error("Sponsor submit error:", e);
       setErr(e?.message ?? "Something went wrong. Please try again.");

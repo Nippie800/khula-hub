@@ -161,7 +161,7 @@ export default function HomePage() {
                     <div className="mt-2 grid gap-2 text-sm">
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-white/85">Dates</span>
-                        <span className="font-semibold">TBA</span>
+                        <span className="font-semibold">24th-27th of April</span>
                       </div>
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-white/85">Venue</span>
