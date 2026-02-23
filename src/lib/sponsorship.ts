@@ -8,9 +8,9 @@ export type SponsorshipPayload = {
   sponsorEmail: string;
   sponsorPhone: string;
 
-  amount: string; // keep as string for MVP ("500", "Full ticket", etc.)
+  amount: string;
   preference: "ANY_LEARNER" | "SPECIFIC_LEARNER";
-  learnerRef: string; // if specific learner, otherwise ""
+  learnerRef: string;
 
   message: string;
 
@@ -18,7 +18,29 @@ export type SponsorshipPayload = {
 };
 
 export async function createSponsorship(payload: SponsorshipPayload) {
-  const col = collection(db, "sponsorships");
-  const docRef = await addDoc(col, { ...payload, createdAt: serverTimestamp() });
-  return docRef.id;
+  try {
+    // sanity logs (you'll see these in the browser console)
+    console.log("[createSponsorship] payload:", payload);
+
+    const colRef = collection(db, "sponsorships");
+
+    const docRef = await addDoc(colRef, {
+      ...payload,
+      createdAt: serverTimestamp(),
+    });
+
+    console.log("[createSponsorship] created doc id:", docRef.id);
+    return docRef.id;
+  } catch (err: any) {
+    // This will reveal permission errors immediately
+    console.error("[createSponsorship] FAILED:", err);
+
+    // Normalize Firebase error message
+    const msg =
+      err?.code
+        ? `${err.code}: ${err.message ?? "Firebase error"}`
+        : err?.message ?? "Unknown error creating sponsorship";
+
+    throw new Error(msg);
+  }
 }

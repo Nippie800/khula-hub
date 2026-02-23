@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Container from "../../components/Container";
 import TextField from "../../components/TextField";
@@ -12,6 +12,7 @@ import { isValidEmail, isValidPhone, normalizePhone } from "../../lib/validate";
 
 export default function SponsorPage() {
   const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
@@ -24,23 +25,28 @@ export default function SponsorPage() {
   const [learnerRef, setLearnerRef] = useState("");
   const [message, setMessage] = useState("");
 
-  const canSubmit = useMemo(() => {
-    if (!sponsorName.trim()) return false;
-    if (!isValidEmail(sponsorEmail)) return false;
-    if (!isValidPhone(sponsorPhone)) return false;
-    if (!amount.trim()) return false;
-    if (specificLearner && !learnerRef.trim()) return false;
-    return true;
-  }, [sponsorName, sponsorEmail, sponsorPhone, amount, specificLearner, learnerRef]);
+  function validate() {
+    const name = sponsorName.trim();
+    const email = sponsorEmail.trim();
+    const phone = sponsorPhone.trim();
+    const amt = amount.trim();
+    const lref = learnerRef.trim();
+
+    if (!name) return "Please enter your full name.";
+    if (!email) return "Please enter your email address.";
+    if (!isValidEmail(email)) return "Please enter a valid email address (e.g. name@email.com).";
+    if (!phone) return "Please enter your phone number.";
+    if (!isValidPhone(phone)) return "Please enter a valid phone number (e.g. 07x... or +27...).";
+    if (!amt) return `Please enter an amount (e.g. "500") or write "Full ticket".`;
+    if (specificLearner && !lref) return "Please enter the learner reference code (e.g. KHULA-2026-1234).";
+
+    return "";
+  }
 
   async function onSubmit() {
     setErr("");
-
-    if (!sponsorName.trim()) return setErr("Please enter your name.");
-    if (!isValidEmail(sponsorEmail)) return setErr("Please enter a valid email.");
-    if (!isValidPhone(sponsorPhone)) return setErr("Please enter a valid phone number.");
-    if (!amount.trim()) return setErr("Please enter an amount (or write 'Full ticket').");
-    if (specificLearner && !learnerRef.trim()) return setErr("Please enter the learner reference code.");
+    const problem = validate();
+    if (problem) return setErr(problem);
 
     setLoading(true);
     try {
@@ -59,9 +65,10 @@ export default function SponsorPage() {
       });
 
       router.push(`/sponsor/success?ref=${encodeURIComponent(ref)}`);
-    } catch (e: any) {
-      setErr(e?.message ?? "Something went wrong. Please try again.");
-    } finally {
+   } catch (e: any) {
+  console.error("Sponsor submit error:", e);
+  setErr(e?.message ?? "Something went wrong. Please try again.");
+} finally {
       setLoading(false);
     }
   }
@@ -70,10 +77,20 @@ export default function SponsorPage() {
     <main className="py-10">
       <Container>
         <div className="rounded-3xl border border-gray-200 p-6 shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-900">Sponsor a learner</h1>
-          <p className="mt-1 text-sm text-gray-700">
-            Sponsor a learner’s camp ticket (full or partial). After submitting, you’ll receive an EFT reference.
-          </p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Sponsor a learner</h1>
+              <p className="mt-1 text-sm text-gray-700">
+                Sponsor a camp ticket (full or partial). After submitting, you’ll receive an EFT reference.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-gray-50 px-4 py-3 text-xs text-gray-700">
+              <div className="font-semibold text-gray-900">Quick examples</div>
+              <div className="mt-1">Amount: <b>500</b> or <b>Full ticket</b></div>
+              <div>Phone: <b>0812345678</b> or <b>+27812345678</b></div>
+            </div>
+          </div>
 
           {err ? (
             <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
@@ -82,23 +99,57 @@ export default function SponsorPage() {
           ) : null}
 
           <div className="mt-6 grid gap-8">
+            {/* Sponsor details */}
             <section className="grid gap-4">
               <h2 className="text-lg font-semibold">Sponsor details</h2>
               <div className="grid gap-4 sm:grid-cols-2">
-                <TextField label="Full name" name="sponsorName" value={sponsorName} onChange={setSponsorName} required />
-                <TextField label="Phone number" name="sponsorPhone" value={sponsorPhone} onChange={setSponsorPhone} required />
-                <TextField label="Email" name="sponsorEmail" value={sponsorEmail} onChange={setSponsorEmail} type="email" required />
-                <TextField label="Amount" name="amount" value={amount} onChange={setAmount} placeholder='e.g. 500 or "Full ticket"' required />
+                <TextField
+                  label="Full name"
+                  name="sponsorName"
+                  value={sponsorName}
+                  onChange={setSponsorName}
+                  required
+                />
+                <TextField
+                  label="Phone number"
+                  name="sponsorPhone"
+                  value={sponsorPhone}
+                  onChange={setSponsorPhone}
+                  placeholder="e.g. 0812345678 or +27812345678"
+                  required
+                />
+                <TextField
+                  label="Email"
+                  name="sponsorEmail"
+                  value={sponsorEmail}
+                  onChange={setSponsorEmail}
+                  type="email"
+                  placeholder="name@email.com"
+                  required
+                />
+                <TextField
+                  label="Amount"
+                  name="amount"
+                  value={amount}
+                  onChange={setAmount}
+                  placeholder='e.g. 500 or "Full ticket"'
+                  required
+                />
               </div>
             </section>
 
+            {/* Preference */}
             <section className="grid gap-3">
               <h2 className="text-lg font-semibold">Preference</h2>
 
               <CheckboxField
                 checked={specificLearner}
                 onChange={setSpecificLearner}
-                label={<>I want to sponsor a <b>specific learner</b> (enter their reference code).</>}
+                label={
+                  <>
+                    I want to sponsor a <b>specific learner</b> (enter their registration reference code).
+                  </>
+                }
               />
 
               {specificLearner ? (
@@ -111,10 +162,18 @@ export default function SponsorPage() {
                     placeholder="e.g. KHULA-2026-1234"
                     required
                   />
+                  <p className="mt-2 text-xs text-gray-600">
+                    If you don’t have a learner code, uncheck the box to sponsor any learner.
+                  </p>
                 </div>
-              ) : null}
+              ) : (
+                <p className="text-xs text-gray-600">
+                  You’re sponsoring <b>any learner</b> who needs support. Khula NPC will allocate funds responsibly.
+                </p>
+              )}
             </section>
 
+            {/* Message */}
             <section className="grid gap-2">
               <h2 className="text-lg font-semibold">Message (optional)</h2>
               <textarea
@@ -125,10 +184,21 @@ export default function SponsorPage() {
                 rows={4}
               />
             </section>
+          </div>
+        </div>
 
-            <PrimaryButton onClick={onSubmit} disabled={loading || !canSubmit}>
-              {loading ? "Submitting..." : "Submit sponsorship"}
-            </PrimaryButton>
+        {/* Sticky submit bar so the button ALWAYS shows */}
+        <div className="sticky bottom-4 mt-6">
+          <div className="rounded-3xl border border-gray-200 bg-white/95 p-4 shadow-sm backdrop-blur">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-gray-700">
+                Submit to receive your <b>EFT reference</b>. (No payment gate.)
+              </div>
+
+              <PrimaryButton onClick={onSubmit} disabled={loading}>
+                {loading ? "Submitting..." : "Submit sponsorship"}
+              </PrimaryButton>
+            </div>
           </div>
         </div>
       </Container>
