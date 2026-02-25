@@ -1,10 +1,10 @@
 "use client";
 
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Container from "../../../components/Container";
 import PrimaryButton from "../../../components/PrimaryButton";
 import { EFT } from "../../../lib/constants";
-import { useState } from "react";
 
 function StepItem({ title, desc }: { title: string; desc: string }) {
   return (
@@ -15,7 +15,7 @@ function StepItem({ title, desc }: { title: string; desc: string }) {
   );
 }
 
-export default function SuccessPage() {
+function SuccessInner() {
   const searchParams = useSearchParams();
   const ref = searchParams.get("ref") ?? "KHULA-YYYY-XXXX";
 
@@ -53,7 +53,6 @@ export default function SuccessPage() {
 
               <p className="mt-2 text-sm text-white/90">
                 Next step: make an EFT payment using the reference below (exactly as shown) so we can confirm the spot.
-                <span className="block mt-2 text-white/85 font-semibold">See you around the fire. 🔥</span>
               </p>
             </div>
           </div>
@@ -101,18 +100,9 @@ export default function SuccessPage() {
 
             {/* Steps */}
             <div className="mt-6 grid gap-3 md:grid-cols-3">
-              <StepItem
-                title="1) Make EFT payment"
-                desc="Pay using your banking app and include the reference exactly as shown."
-              />
-              <StepItem
-                title="2) Keep proof of payment"
-                desc="Save your POP/screenshot in case we need to verify quickly."
-              />
-              <StepItem
-                title="3) Wait for confirmation"
-                desc="An admin will match payment and mark the registration as paid."
-              />
+              <StepItem title="1) Make EFT payment" desc="Pay using your banking app and include the reference exactly as shown." />
+              <StepItem title="2) Keep proof of payment" desc="Save your POP/screenshot in case we need to verify quickly." />
+              <StepItem title="3) Wait for confirmation" desc="An admin will match payment and mark the registration as paid." />
             </div>
 
             {/* CTA */}
@@ -124,5 +114,26 @@ export default function SuccessPage() {
         </div>
       </Container>
     </main>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+          <Container>
+            <div className="py-10">
+              <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="text-sm font-semibold text-gray-900">Loading your camp details…</div>
+                <p className="mt-2 text-sm text-gray-700">Getting your EFT reference ready.</p>
+              </div>
+            </div>
+          </Container>
+        </main>
+      }
+    >
+      <SuccessInner />
+    </Suspense>
   );
 }
