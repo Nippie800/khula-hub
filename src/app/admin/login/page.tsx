@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+
 "use client";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -8,6 +8,7 @@ import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
 import PrimaryButton from "../../../components/PrimaryButton";
 import { auth } from "../../../lib/firebase";
+export const dynamic = "force-dynamic";
 
 function GeometricOverlay() {
   return (
