@@ -1,6 +1,7 @@
 import Container from "../components/Container";
 import PrimaryButton from "../components/PrimaryButton";
 import { CAMP } from "../lib/constants";
+import Image from "next/image";
 
 function Pill({ children }: { children: React.ReactNode }) {
   return (
@@ -264,16 +265,59 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* TEAM / REPS */}
+            {/* TEAM / REPS */}
       <section className="py-12">
         <Container>
           <h2 className="text-2xl font-bold text-gray-900">Meet the team</h2>
           <p className="mt-2 text-sm text-gray-700">
-            Add representatives of Khula NPC here (names + short bios).
+            The people behind the camp — building strong character, one truth at a time.
           </p>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {["Representative 1", "Representative 2", "Representative 3"].map((name) => (
+            {/* ✅ Marketing / Social Media rep */}
+            <div className="group rounded-3xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-[2px] hover:shadow-md">
+              <div className="flex items-center gap-4">
+                <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
+                  <Image
+                    src="/team/khulaRep-Photoroom.jpg"
+                    alt="Khula NPC representative"
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                    priority
+                  />
+                </div>
+
+                <div className="min-w-0">
+                  <div className="text-base font-semibold text-gray-900">
+                    Marketing & Social Media
+                  </div>
+                  <p className="mt-0.5 text-xs text-gray-600">
+                    Marketing Department • Content + Community
+                  </p>
+                </div>
+              </div>
+
+              <p className="mt-4 text-sm leading-relaxed text-gray-700">
+                Leads camp marketing and manages social media — sharing updates, stories, and moments
+                that reflect the camp’s values and energy.
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-semibold text-gray-700">
+                  📣 Marketing
+                </span>
+                <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-semibold text-gray-700">
+                  📱 Social Media
+                </span>
+                <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-semibold text-gray-700">
+                  🤝 Community
+                </span>
+              </div>
+            </div>
+
+            {/* Other placeholders (keep or replace later) */}
+            {["Representative 2", "Representative 3"].map((name) => (
               <div key={name} className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
                 <div className="text-base font-semibold text-gray-900">{name}</div>
                 <p className="mt-2 text-sm text-gray-700">
