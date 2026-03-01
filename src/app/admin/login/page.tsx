@@ -1,6 +1,4 @@
-export const dynamic = "force-dynamic";
-
-import AdminLoginClient from "./loginClient";
+import AdminLoginClient from "./LoginClient";
 
 export default function AdminLoginPage() {
   return <AdminLoginClient />;
