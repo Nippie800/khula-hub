@@ -4,14 +4,14 @@ import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 
 export const metadata: Metadata = {
-  title: "Khula NPC | Camp Registration",
-  description: "Khula NPC Camp Registration Portal",
+  title: "Khula Camp | Building Character One Truth at a Time",
+  description: "Khula Camp registration and sponsorship platform.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-white text-gray-900 antialiased">
+      <body className="bg-[#f8f5ef] text-gray-900 antialiased">
         <NavBar />
         {children}
         <Footer />
