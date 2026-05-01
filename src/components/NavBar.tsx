@@ -4,10 +4,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
+function scrollToSection(id: string) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  const yOffset = -80; // offset for sticky navbar
+  const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
+
+  window.scrollTo({ top: y, behavior: "smooth" });
+}
+
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-[#f4f0ea]/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/images/khulalogoPhotoroom.png"
@@ -19,21 +31,38 @@ export default function Navbar() {
           />
         </Link>
 
+        {/* Nav Links */}
         <nav className="hidden items-center gap-8 md:flex">
-          <a href="#about" className="text-sm font-semibold text-[#5b3a1f] hover:text-[#2f6f68]">
+          <button
+            onClick={() => scrollToSection("about")}
+            className="text-sm font-semibold text-[#5b3a1f] hover:text-[#2f6f68]"
+          >
             About Us
-          </a>
-          <a href="#programs" className="text-sm font-semibold text-[#5b3a1f] hover:text-[#2f6f68]">
+          </button>
+
+          <button
+            onClick={() => scrollToSection("programs")}
+            className="text-sm font-semibold text-[#5b3a1f] hover:text-[#2f6f68]"
+          >
             Programmes
-          </a>
-          <a href="#team" className="text-sm font-semibold text-[#5b3a1f] hover:text-[#2f6f68]">
+          </button>
+
+          <button
+            onClick={() => scrollToSection("team")}
+            className="text-sm font-semibold text-[#5b3a1f] hover:text-[#2f6f68]"
+          >
             Our Team
-          </a>
-          <a href="#gallery" className="text-sm font-semibold text-[#5b3a1f] hover:text-[#2f6f68]">
+          </button>
+
+          <button
+            onClick={() => scrollToSection("gallery")}
+            className="text-sm font-semibold text-[#5b3a1f] hover:text-[#2f6f68]"
+          >
             Gallery
-          </a>
+          </button>
         </nav>
 
+        {/* CTA */}
         <motion.a
           whileHover={{ y: -2, scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
