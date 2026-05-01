@@ -47,10 +47,10 @@ export default function HomePage() {
       <TrustBar />
 
       {/* ABOUT */}
-      <About />
+      <section id="about">...</section>
 
       {/* PROGRAMS */}
-      <Programs />
+      <section id="programs">...</section>
 
       {/* HOW REGISTRATION WORKS */}
       <section className="py-16 bg-gradient-to-br from-blue-900 via-teal-700 to-lime-400">
